@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Водосборный бассейн Плещеево озеро</title>
+    <link href="https://api.mapbox.com/mapbox-gl-js/v3.5.0/mapbox-gl.css" rel="stylesheet">
+    <script src="https://api.mapbox.com/mapbox-gl-js/v3.5.0/mapbox-gl.js"></script>
+    <link href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-draw/v1.14.0/mapbox-gl-draw.css" rel="stylesheet">
+    <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-draw/v1.14.0/mapbox-gl-draw.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="navbar">
+        <div class="navbar-brand" style="align-items:center;">
+            <img src="data/icon/plesheevo_icon.png" alt="Плещеево озеро"
+                 style="height:36px;width:36px;object-fit:contain;margin-right:10px;display:block;">
+            <span class="brand-title">Водосборный бассейн Плещеево озеро</span>
+        </div>
+        <div class="navbar-menu">
+            <button id="about-btn" class="nav-btn">О проекте</button>
+            <button id="ecology-btn" class="nav-btn">Экологические показатели</button>
+            <button id="tools-modal-btn" class="nav-btn">Инструменты</button>
+        </div>
+    </div>
+
+    <div id="map"></div>
+
+    <!-- ЛЕГЕНДА -->
+    <div class="legend-panel">
+        <div class="legend-header">
+            <h3>Условные обозначения</h3>
+            <button id="legend-toggle" title="Свернуть/развернуть" onclick="toggleLegend()">&#x25B2;</button>
+        </div>
+        <div id="legend-body">
+
+        <div class="legend-section">
+            <h4>Локальная гидрография</h4>
+            <label class="legend-item">
+                <input type="checkbox" class="layer-checkbox" data-layer="gidroLine" checked>
+                <div class="legend-line" style="background:#3498db;height:3px;"></div>
+                <span>Реки и ручьи (локальные)</span>
+            </label>
+        </div>
+
+        <div class="legend-section">
+            <h4>Тематические слои</h4>
+            <label class="legend-item">
+                <input type="checkbox" class="layer-checkbox" data-layer="basin" checked>
+                <div class="legend-color" style="background:#2b7a4b;opacity:0.3;border:2px solid #1a5a3a;"></div>
+                <span>Водосборный бассейн</span>
+            </label>
+            <label class="legend-item">
+                <input type="checkbox" class="layer-checkbox" data-layer="natpark" checked>
+                <div style="width:20px;height:14px;background:#a8c89a;opacity:0.5;border:1.5px solid #2d7a2d;border-radius:2px;"></div>
+                <span>Границы нацпарка</span>
+            </label>
+            <label class="legend-item">
+                <input type="checkbox" class="layer-checkbox" data-layer="gidroBas">
+                <div class="legend-color" style="background:#2ecc71;opacity:0.2;border:1px solid #27ae60;"></div>
+                <span>Бассейны рек</span>
+            </label>
+            <label class="legend-item">
+                <input type="checkbox" class="layer-checkbox" data-layer="monitoring">
+                <div class="legend-circle" style="background:#e74c3c;width:12px;height:12px;"></div>
+                <span>Точки мониторинга</span>
+            </label>
+            <label class="legend-item">
+                <input type="checkbox" class="layer-checkbox" data-layer="sewage">
+                <div class="legend-line" style="background:#e67e22;height:2px;"></div>
+                <span>Канализационные сети</span>
+            </label>
+        </div>
+
+        <!-- ГИДРОХИМИЯ -->
+        <div class="legend-section">
+            <h4>Гидрохимия</h4>
+            <div class="legend-item" style="margin-bottom:6px;">
+                <input type="checkbox" id="chem-checkbox">
+                <div style="display:flex;gap:3px;align-items:center;">
+                    <div class="legend-circle" style="background:#27ae60;width:12px;height:12px;"></div>
+                    <div class="legend-circle" style="background:#e67e22;width:12px;height:12px;"></div>
+                    <div class="legend-circle" style="background:#e74c3c;width:12px;height:12px;"></div>
+                </div>
+                <span style="flex:1;">Показатели (Среднегодовое/ПДК)</span>
+            </div>
+
+            <!-- Управление показателем — скрыто до включения чекбокса -->
+            <div id="chem-controls" style="display:none; padding-left:2px;">
+                <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">
+                    <select id="chem-select" style="flex:1;padding:4px 6px;background:#fff8e8;border:1px solid #d4c5a0;border-radius:4px;color:#2c2c2c;font-size:11px;font-family:inherit;cursor:pointer;">
+                        <option value="chemPH">pH</option>
+                        <option value="chemBPK">БПК</option>
+                        <option value="chemGelezo">Железо</option>
+                        <option value="chemIonyAmonia">Ионы аммония</option>
+                        <option value="chemKadmiy">Кадмий</option>
+                        <option value="chemKalciy">Кальций</option>
+                        <option value="chemMedy">Медь</option>
+                        <option value="chemNefteprodukty">Нефтепродукты</option>
+                        <option value="chemNitratIony">Нитрат-ионы</option>
+                        <option value="chemNitritIony">Нитрит-ионы</option>
+                        <option value="chemRastvKislorod">Растворённый кислород</option>
+                        <option value="chemSvinec">Свинец</option>
+                        <option value="chemSulfaty">Сульфаты</option>
+                        <option value="chemFosfatIony">Фосфат-ионы</option>
+                        <option value="chemHloridy">Хлориды</option>
+                        <option value="chemCink">Цинк</option>
+                    </select>
+                    <button id="chem-help-btn" title="Что это за показатель?"
+                        style="width:22px;height:22px;border-radius:50%;border:1px solid #d4c5a0;background:#fff8e8;color:#5a4a2a;font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:inherit;">?</button>
+                </div>
+                <!-- Tooltip -->
+                <div id="chem-tooltip" style="display:none;background:#fffbe8;border:1px solid #d4c5a0;border-radius:6px;padding:10px;font-size:11px;line-height:1.55;color:#2c2c2c;margin-bottom:6px;box-shadow:0 2px 8px rgba(0,0,0,0.12);"></div>
+                <!-- Ползунок годов -->
+                <div id="chem-year-slider" style="padding:0 2px;">
+                    <div style="font-size:11px;color:#8a7a5a;font-style:italic;">Загрузка данных...</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="legend-section">
+            <h4>Сток воды</h4>
+            <label class="legend-item">
+                <input type="checkbox" class="layer-checkbox" data-layer="stokVody">
+                <div style="display:flex;gap:3px;align-items:center;">
+                    <div class="legend-circle" style="background:#a8d0f0;width:10px;height:10px;"></div>
+                    <div class="legend-circle" style="background:#3a8fc7;width:13px;height:13px;"></div>
+                    <div class="legend-circle" style="background:#0d3b6e;width:16px;height:16px;"></div>
+                </div>
+                <span>Расход воды (м³/с)</span>
+            </label>
+            <div style="font-size:10px;color:#5a4a2a;margin-top:2px;margin-left:22px;">малый · средний · крупный</div>
+            <div id="stok-year-slider-container" style="display:none;margin-top:6px;padding:0 2px;"></div>
+        </div>
+
+        <div class="legend-section">
+            <h4>Границы</h4>
+            <label class="legend-item">
+                <input type="checkbox" class="layer-checkbox" data-layer="yaroslavl">
+                <div class="legend-boundary" style="border-color:#f39c12;"></div>
+                <span>Ярославская область</span>
+            </label>
+            <label class="legend-item">
+                <input type="checkbox" class="layer-checkbox" data-layer="perZalBound">
+                <div class="legend-boundary" style="border-color:#f1c40f;"></div>
+                <span>Город Переславль-Залесский</span>
+            </label>
+            <label class="legend-item">
+                <input type="checkbox" class="layer-checkbox" data-layer="perZalGO">
+                <div class="legend-boundary" style="border-color:#e67e22;"></div>
+                <span>Переславль-Залесский округ</span>
+            </label>
+        </div>
+
+        <div class="legend-section">
+            <h4>Подложка карты</h4>
+            <select id="basemap-select">
+                <option value="light" selected>Светлая (Mapbox)</option>
+                <option value="satellite">Спутник (Mapbox)</option>
+                <option value="streets">Улицы (Mapbox)</option>
+                <option value="outdoors">Ландшафтная (Mapbox)</option>
+                <option value="dark">Тёмная (Mapbox)</option>
+                <option value="osm">OpenStreetMap</option>
+                <option value="openTopoMap">OpenTopoMap</option>
+            </select>
+        </div>
+        </div><!-- /legend-body -->
+    </div>
+
+    <!-- О ПРОЕКТЕ -->
+    <div id="about-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>О проекте</h3>
+                <span class="modal-close">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p><strong>Интерактивная карта "Плещеево озеро"</strong></p>
+                <p>Проект посвящен гидроэкологическому состоянию озера Плещеево и его водосборного бассейна.</p>
+                <br>
+                <p><strong>Разработчик:</strong> ст-т 2022-КФ-КиГ-1б Щербина Н.Е.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ЭКОЛОГИЧЕСКИЕ ПОКАЗАТЕЛИ -->
+    <div id="ecology-modal" class="modal">
+        <div class="modal-content" style="max-width:560px;">
+            <div class="modal-header">
+                <h3>Экологические показатели</h3>
+                <span class="modal-close">&times;</span>
+            </div>
+            <div class="modal-body">
+                <h4 style="font-size:14px;font-weight:600;margin-bottom:14px;color:#2c2c2c;">Гидрохимические показатели</h4>
+                <p style="font-size:12px;color:#5a4a2a;margin-bottom:14px;line-height:1.5;">
+                    На карте отображается коэффициент отношения средней концентрации вещества к предельно допустимой концентрации (ПДК).
+                    Зелёный цвет — норма (&lt;0,95 ПДК), оранжевый — пограничное состояние (0,95–1,1 ПДК), красный — превышение (&gt;1,1 ПДК).
+                </p>
+
+                <div class="ecology-item"><strong>pH</strong> — водородный показатель (безразмерная величина). Характеризует кислотно-щелочной баланс воды. Норма для природных вод — 6,5–8,5. Отклонение угнетает водные организмы и нарушает процессы самоочищения водоёма.</div>
+                <div class="ecology-item"><strong>БПК</strong> — биохимическое потребление кислорода (мг О₂/дм³). Количество кислорода, расходуемого на биохимическое окисление органических веществ за 5 суток. Показывает уровень органического загрязнения: чем выше значение, тем сильнее загрязнение.</div>
+                <div class="ecology-item"><strong>Железо</strong> (мг/дм³). Поступает из природных источников и сточных вод. При превышении ПДК придаёт воде бурый цвет и неприятный привкус, токсично для рыб. ПДК для рыбохозяйственных водоёмов — 0,1 мг/дм³.</div>
+                <div class="ecology-item"><strong>Ионы аммония</strong> (мг/дм³). Образуются при разложении органических азотсодержащих веществ. Высокая концентрация свидетельствует о загрязнении сточными водами. ПДК для рыбохозяйственных водоёмов — 0,5 мг/дм³.</div>
+                <div class="ecology-item"><strong>Кадмий</strong> (мкг/дм³). Высокотоксичный тяжёлый металл. Попадает в водоёмы со сточными водами и удобрениями. Накапливается в организмах водных животных и по пищевым цепям достигает человека. ПДК — 1 мкг/дм³.</div>
+                <div class="ecology-item"><strong>Кальций</strong> (мг/дм³). Основной катион, определяющий жёсткость воды. Присутствует в природных водах в результате растворения горных пород. Повышенное содержание ухудшает питьевые качества воды.</div>
+                <div class="ecology-item"><strong>Медь</strong> (мкг/дм³). В малых количествах необходима водным организмам, однако при превышении ПДК токсична для экосистем. ПДК для рыбохозяйственных водоёмов — 1 мкг/дм³. Источники — промышленные стоки и сельскохозяйственный смыв.</div>
+                <div class="ecology-item"><strong>Нефтепродукты</strong> (мг/дм³). Образуют плёнку на поверхности воды, нарушающую газообмен. ПДК для рыбохозяйственных водоёмов — 0,05 мг/дм³. Поступают с поверхностным стоком и при авариях на объектах инфраструктуры.</div>
+                <div class="ecology-item"><strong>Нитрат-ионы</strong> (мг/дм³). Конечный продукт окисления азотсодержащих соединений. Главный источник — сельскохозяйственные удобрения. Высокая концентрация вызывает эвтрофикацию водоёма — избыточный рост водорослей и падение содержания кислорода.</div>
+                <div class="ecology-item"><strong>Нитрит-ионы</strong> (мг/дм³). Промежуточный продукт нитрификации аммония, более токсичны, чем нитраты. Высокая концентрация указывает на свежее органическое загрязнение. ПДК для рыбохозяйственных водоёмов — 0,08 мг/дм³.</div>
+                <div class="ecology-item"><strong>Растворённый кислород</strong> (мг/дм³). Необходим для жизнедеятельности водных организмов. Норма — не менее 6 мг/дм³. Снижение ниже 4 мг/дм³ критично для рыб. Уменьшается при органическом загрязнении и повышении температуры воды.</div>
+                <div class="ecology-item"><strong>Свинец</strong> (мкг/дм³). Токсичный тяжёлый металл, накапливающийся в организмах. Поступает с выбросами автотранспорта и промышленными стоками. ПДК для рыбохозяйственных водоёмов — 6 мкг/дм³.</div>
+                <div class="ecology-item"><strong>Сульфаты</strong> (мг/дм³). Присутствуют во всех природных водах. При высоких концентрациях придают воде горький привкус. Поступают при растворении минералов и из сточных вод. ПДК для питьевой воды — 500 мг/дм³.</div>
+                <div class="ecology-item"><strong>Фосфат-ионы</strong> (мг/дм³). Биогенный элемент, лимитирующий продуктивность водоёмов. Поступают с сельскохозяйственным стоком. Избыток вызывает «цветение» воды — массовое развитие токсичных цианобактерий.</div>
+                <div class="ecology-item"><strong>Хлориды</strong> (мг/дм³). Присутствуют в природных водах повсеместно. Резкое повышение концентрации указывает на загрязнение сточными водами или дорожными реагентами. ПДК для рыбохозяйственных водоёмов — 300 мг/дм³.</div>
+                <div class="ecology-item"><strong>Цинк</strong> (мкг/дм³). В малых количествах необходим живым организмам, при превышении ПДК токсичен для водных экосистем. Поступает со сточными водами предприятий и поверхностным стоком. ПДК для рыбохозяйственных водоёмов — 10 мкг/дм³.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ИНСТРУМЕНТЫ -->
+    <div id="tools-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Инструменты карты</h3>
+                <span class="modal-close">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="tools-list">
+                    <button id="fullscreen-btn" class="modal-tool-btn">Полноэкранный режим</button>
+                    <button id="measure-btn" class="modal-tool-btn">Измерение расстояния</button>
+                    <button id="reset-view-btn" class="modal-tool-btn">Сбросить вид</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="measure-status" class="measure-status hidden"></div>
+
+    <script src="script.js"></script>
+</body>
+</html>
