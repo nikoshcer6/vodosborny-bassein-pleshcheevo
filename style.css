@@ -301,3 +301,57 @@ body {
 .ecology-item strong {
     color: #1a4a1a;
 }
+/* ===== POPUP МАРШРУТОВ ЭКСПЕДИЦИИ ===== */
+.route-popup .mapboxgl-popup-content {
+    background: #F9EBC7; border-radius: 8px;
+    padding: 0; box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+    border: 1px solid #d4c5a0; overflow: hidden;
+    font-family: 'Inter', 'Segoe UI', sans-serif;
+}
+.route-popup .mapboxgl-popup-close-button {
+    color: #5a4a2a; font-size: 18px;
+    padding: 4px 8px; background: transparent; z-index: 1;
+}
+.route-popup .mapboxgl-popup-close-button:hover { color: #2c2c2c; background: rgba(0,0,0,0.07); }
+.route-popup .mapboxgl-popup-tip { border-top-color: #d4c5a0; }
+
+.route-popup-inner { width: 220px; }
+.route-popup-header {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 8px 32px 8px 12px;
+    border-bottom: 1px solid #e0d5b5;
+}
+.route-popup-type { font-size: 12px; font-weight: 600; color: #2c2c2c; }
+.route-popup-fid  { font-size: 11px; color: #5a4a2a; }
+.route-popup-body { padding: 8px 12px 12px; }
+.route-popup-row  {
+    display: flex; justify-content: space-between;
+    font-size: 12px; color: #2c2c2c;
+    padding: 4px 0; border-bottom: 1px solid #f0e8d0;
+}
+.route-popup-row:last-child { border-bottom: none; }
+.route-popup-label { color: #5a4a2a; font-weight: 500; margin-right: 8px; }
+/* ===== POPUP ТОЧЕК ОБСЛЕДОВАНИЯ ===== */
+.prob-popup .mapboxgl-popup-content {
+    background: #F9EBC7; border-radius: 8px;
+    padding: 0; box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+    border: 1px solid #d4c5a0; overflow: hidden;
+    font-family: 'Inter', 'Segoe UI', sans-serif;
+}
+.prob-popup .mapboxgl-popup-close-button {
+    color: #5a4a2a; font-size: 18px;
+    padding: 4px 8px; background: transparent; z-index: 1;
+}
+.prob-popup .mapboxgl-popup-close-button:hover { color: #2c2c2c; background: rgba(0,0,0,0.07); }
+.prob-popup .mapboxgl-popup-tip { border-top-color: #d4c5a0; }
+.prob-popup-inner { width: 260px; }
+.prob-popup-title {
+    font-size: 13px; font-weight: 600; color: #2c2c2c;
+    padding: 10px 32px 8px 12px;
+    border-bottom: 1px solid #e0d5b5; background: #f0e0b0;
+}
+.prob-popup-photo { width: 100%; height: 130px; object-fit: cover; display: block; }
+.prob-popup-text {
+    font-size: 11px; line-height: 1.55; color: #3a3a3a;
+    padding: 8px 12px 12px; white-space: pre-line;
+}

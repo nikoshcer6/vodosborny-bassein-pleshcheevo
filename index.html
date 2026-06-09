@@ -13,7 +13,7 @@
 <body>
     <div class="navbar">
         <div class="navbar-brand" style="align-items:center;">
-            <img src="data/icon/plesheevo_icon.png" alt="Плещеево озеро"
+            <img src="data/Icon/plesheevo_icon.png" alt="Плещеево озеро"
                  style="height:36px;width:36px;object-fit:contain;margin-right:10px;display:block;">
             <span class="brand-title">Водосборный бассейн Плещеево озеро</span>
         </div>
@@ -35,16 +35,12 @@
         <div id="legend-body">
 
         <div class="legend-section">
-            <h4>Локальная гидрография</h4>
+            <h4>Тематические слои</h4>
             <label class="legend-item">
                 <input type="checkbox" class="layer-checkbox" data-layer="gidroLine" checked>
-                <div class="legend-line" style="background:#3498db;height:3px;"></div>
-                <span>Реки и ручьи (локальные)</span>
+                <div class="legend-line" style="background:#6498d2;height:3px;"></div>
+                <span>Реки и ручьи водосборного бассейна</span>
             </label>
-        </div>
-
-        <div class="legend-section">
-            <h4>Тематические слои</h4>
             <label class="legend-item">
                 <input type="checkbox" class="layer-checkbox" data-layer="basin" checked>
                 <div class="legend-color" style="background:#2b7a4b;opacity:0.3;border:2px solid #1a5a3a;"></div>
@@ -52,7 +48,7 @@
             </label>
             <label class="legend-item">
                 <input type="checkbox" class="layer-checkbox" data-layer="natpark" checked>
-                <div style="width:20px;height:14px;background:#a8c89a;opacity:0.5;border:1.5px solid #2d7a2d;border-radius:2px;"></div>
+                <div style="width:20px;height:14px;background:#c8a96e;opacity:0.4;border:2px solid #8B5E3C;border-radius:2px;"></div>
                 <span>Границы нацпарка</span>
             </label>
             <label class="legend-item">
@@ -65,16 +61,12 @@
                 <div class="legend-circle" style="background:#e74c3c;width:12px;height:12px;"></div>
                 <span>Точки мониторинга</span>
             </label>
-            <label class="legend-item">
-                <input type="checkbox" class="layer-checkbox" data-layer="sewage">
-                <div class="legend-line" style="background:#e67e22;height:2px;"></div>
-                <span>Канализационные сети</span>
-            </label>
+        
         </div>
 
-        <!-- ГИДРОХИМИЯ -->
+        <!-- Гидрохимия национального парка -->
         <div class="legend-section">
-            <h4>Гидрохимия</h4>
+            <h4>Гидрохимия национального парка</h4>
             <div class="legend-item" style="margin-bottom:6px;">
                 <input type="checkbox" id="chem-checkbox">
                 <div style="display:flex;gap:3px;align-items:center;">
@@ -127,10 +119,57 @@
                     <div class="legend-circle" style="background:#3a8fc7;width:13px;height:13px;"></div>
                     <div class="legend-circle" style="background:#0d3b6e;width:16px;height:16px;"></div>
                 </div>
-                <span>Расход воды (м³/с)</span>
+                <span>Сток воды (тыс.м³)</span>
             </label>
-            <div style="font-size:10px;color:#5a4a2a;margin-top:2px;margin-left:22px;">малый · средний · крупный</div>
             <div id="stok-year-slider-container" style="display:none;margin-top:6px;padding:0 2px;"></div>
+        </div>
+
+        <div class="legend-section">
+            <h4>Экспедиционные материалы</h4>
+            <!-- Гидрохимия 2024 -->
+            <div class="legend-item" style="margin-bottom:6px;">
+                <input type="checkbox" id="chem2024-checkbox">
+                <div style="display:flex;gap:3px;align-items:center;">
+                    <div class="legend-circle" style="background:#27ae60;width:12px;height:12px;"></div>
+                    <div class="legend-circle" style="background:#e67e22;width:12px;height:12px;"></div>
+                    <div class="legend-circle" style="background:#e74c3c;width:12px;height:12px;"></div>
+                </div>
+                <span style="flex:1;">Показатели (Среднегодовое/ПДК)</span>
+            </div>
+            <div id="chem2024-controls" style="display:none;padding-left:2px;margin-bottom:8px;">
+                <select id="chem2024-select" style="width:100%;padding:4px 6px;background:#fff8e8;border:1px solid #d4c5a0;border-radius:4px;color:#2c2c2c;font-size:11px;font-family:inherit;cursor:pointer;">
+                    <option value="chem2024PH">pH</option>
+                    <option value="chem2024IonyAmonia">Ионы аммония</option>
+                    <option value="chem2024NitritIony">Нитрит-ионы</option>
+                    <option value="chem2024Fosfaty">Фосфаты</option>
+                </select>
+            </div>
+            <!-- Точки обследования -->
+            <label class="legend-item">
+                <input type="checkbox" class="layer-checkbox" data-layer="pointsProb1">
+                <div class="legend-circle" style="background:#8e44ad;width:12px;height:12px;"></div>
+                <span>Обследование притоков Трубежа</span>
+            </label>
+            <label class="legend-item" style="margin-top:4px;">
+                <input type="checkbox" id="routes-master-toggle" onchange="toggleRouteMaster(this.checked)">
+                <div style="display:flex;gap:4px;align-items:center;">
+                    <div style="width:14px;height:2px;background:#e67e22;border-top:2px dashed #e67e22;"></div>
+                    <div style="width:14px;height:2px;background:#8e44ad;border-top:2px dashed #8e44ad;"></div>
+                </div>
+                <span>Маршруты экспедиции 2024</span>
+            </label>
+            <div id="routes-type-selector" style="display:none;padding-left:22px;margin-top:4px;">
+                <label class="legend-item" style="margin-bottom:4px;">
+                    <input type="checkbox" id="routes-pesh-toggle" checked onchange="toggleRouteGroup('pesh', this.checked)">
+                    <div style="width:20px;border-top:2px dashed #e67e22;"></div>
+                    <span>Пешие</span>
+                </label>
+                <label class="legend-item" style="margin-bottom:0;">
+                    <input type="checkbox" id="routes-water-toggle" checked onchange="toggleRouteGroup('water', this.checked)">
+                    <div style="width:20px;border-top:2px dashed #8e44ad;"></div>
+                    <span>Водные</span>
+                </label>
+            </div>
         </div>
 
         <div class="legend-section">

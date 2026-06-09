@@ -71,7 +71,7 @@ function chemPaint() {
 const layerConfig = {
     gidroLine: {
         id: 'gidro-line', sourceId: 'gidro-line-source',
-        file: 'data/gidro_line.geojson', type: 'line',
+        file: 'data/gidro_line_done2.geojson', type: 'line',
         paint: { 'line-color': '#3498db', 'line-width': 2.5, 'line-opacity': 0.85 },
         active: true
     },
@@ -156,6 +156,62 @@ const layerConfig = {
         },
         active: false, hasLabels: true, labelField: 'Avg',
         yearFilter: true, sliderId: 'stok-year-slider-container', hasPopup: true
+    },
+    // Пешие маршруты экспедиции
+    routePesh1: { id: 'route-pesh-1', sourceId: 'route-pesh-1-src', file: 'data/route2024/Route_pesh_1.geojson', type: 'route', routeType: 'pesh', active: false },
+    routePesh2: { id: 'route-pesh-2', sourceId: 'route-pesh-2-src', file: 'data/route2024/Route_pesh_2.geojson', type: 'route', routeType: 'pesh', active: false },
+    routePesh3: { id: 'route-pesh-3', sourceId: 'route-pesh-3-src', file: 'data/route2024/Route_pesh_3.geojson', type: 'route', routeType: 'pesh', active: false },
+    routePesh4: { id: 'route-pesh-4', sourceId: 'route-pesh-4-src', file: 'data/route2024/Route_pesh_4.geojson', type: 'route', routeType: 'pesh', active: false },
+    routePesh5: { id: 'route-pesh-5', sourceId: 'route-pesh-5-src', file: 'data/route2024/Route_pesh_5.geojson', type: 'route', routeType: 'pesh', active: false },
+    routePesh6: { id: 'route-pesh-6', sourceId: 'route-pesh-6-src', file: 'data/route2024/Route_pesh_6.geojson', type: 'route', routeType: 'pesh', active: false },
+    // Водные маршруты экспедиции
+    routeW1: { id: 'route-w-1', sourceId: 'route-w-1-src', file: 'data/route2024/Route_w_1.geojson', type: 'route', routeType: 'water', active: false },
+    routeW2: { id: 'route-w-2', sourceId: 'route-w-2-src', file: 'data/route2024/Route_w_2.geojson', type: 'route', routeType: 'water', active: false },
+    routeW3: { id: 'route-w-3', sourceId: 'route-w-3-src', file: 'data/route2024/Route_w_3.geojson', type: 'route', routeType: 'water', active: false },
+    routeW4: { id: 'route-w-4', sourceId: 'route-w-4-src', file: 'data/route2024/Route_w_4.geojson', type: 'route', routeType: 'water', active: false },
+    routeW5: { id: 'route-w-5', sourceId: 'route-w-5-src', file: 'data/route2024/Route_w_5.geojson', type: 'route', routeType: 'water', active: false },
+    // Точки обследования притоков Трубежа
+    pointsProb1: {
+        id: 'points-prob-1', sourceId: 'points-prob-1-src',
+        file: 'data/points_prob_1.geojson', type: 'circle',
+        paint: {
+            'circle-radius': 7,
+            'circle-color': '#8e44ad',
+            'circle-stroke-width': 2,
+            'circle-stroke-color': '#ffffff'
+        },
+        active: false
+    },
+    // Гидрохимия экспедиции 2024
+    chem2024PH: {
+        id: 'chem2024-ph', sourceId: 'chem2024-ph-src',
+        file: 'data/chemistry2024/pH2024.geojson', type: 'circle',
+        paint: chemPaint(), active: false, hasLabels: true, labelField: 'AvgPDK'
+    },
+    chem2024IonyAmonia: {
+        id: 'chem2024-iony-amonia', sourceId: 'chem2024-iony-amonia-src',
+        file: 'data/chemistry2024/iony_amonia2024.geojson', type: 'circle',
+        paint: chemPaint(), active: false, hasLabels: true, labelField: 'AvgPDK'
+    },
+    chem2024NitritIony: {
+        id: 'chem2024-nitrit-iony', sourceId: 'chem2024-nitrit-iony-src',
+        file: 'data/chemistry2024/nitrit_iony2024.geojson', type: 'circle',
+        paint: chemPaint(), active: false, hasLabels: true, labelField: 'AvgPDK'
+    },
+    chem2024Fosfaty: {
+        id: 'chem2024-fosfaty', sourceId: 'chem2024-fosfaty-src',
+        file: 'data/chemistry2024/fosfaty2024.geojson', type: 'circle',
+        paint: chemPaint(), active: false, hasLabels: true, labelField: 'AvgPDK'
+    },
+    // Исторические растровые карты
+    rasterPereslavl1808: {
+        id: 'raster-pereslavl-1808',
+        sourceId: 'raster-pereslavl-1808-src',
+        type: 'raster',
+        tiles: ['data/rasters/pereslavl1808/{z}/{x}/{y}.png'],
+        tileSize: 256,
+        opacity: 0.85,
+        active: false
     }
 };
 
@@ -313,6 +369,35 @@ function updateChemTooltip(key) {
     // tooltip обновится при следующем клике на ?
 }
 
+// ====================== ПЕРЕКЛЮЧАТЕЛЬ ГИДРОХИМИИ 2024 ======================
+let activeChem2024Key = null;
+
+function setupChem2024Controls() {
+    const checkbox = document.getElementById('chem2024-checkbox');
+    const select   = document.getElementById('chem2024-select');
+    if (!checkbox || !select) return;
+
+    checkbox.addEventListener('change', () => {
+        const on = checkbox.checked;
+        document.getElementById('chem2024-controls').style.display = on ? 'block' : 'none';
+        if (on) {
+            switchChem2024Layer(select.value);
+        } else {
+            if (activeChem2024Key) { setLayerVisibility(activeChem2024Key, false); activeChem2024Key = null; }
+        }
+    });
+
+    select.addEventListener('change', () => {
+        if (checkbox.checked) switchChem2024Layer(select.value);
+    });
+}
+
+function switchChem2024Layer(newKey) {
+    if (activeChem2024Key && activeChem2024Key !== newKey) setLayerVisibility(activeChem2024Key, false);
+    activeChem2024Key = newKey;
+    setLayerVisibility(newKey, true);
+}
+
 // ====================== ЗАГРУЗКА СЛОЁВ ======================
 async function loadAllLayers() {
     for (const [key, config] of Object.entries(layerConfig)) {
@@ -323,9 +408,30 @@ async function loadAllLayers() {
     }
     syncCheckboxes();
     setupChemControls();
+    setupChem2024Controls();
 }
 
 async function loadLayer(key, config) {
+    // Растровые слои не требуют fetch — подключаются напрямую через тайлы
+    if (config.type === 'raster') {
+        if (!map.getSource(config.sourceId)) {
+            map.addSource(config.sourceId, {
+                type: 'raster',
+                tiles: config.tiles,
+                tileSize: config.tileSize || 256
+            });
+        }
+        if (!map.getLayer(config.id)) {
+            const initVis = config.active ? 'visible' : 'none';
+            map.addLayer({
+                id: config.id, type: 'raster', source: config.sourceId,
+                layout: { visibility: initVis },
+                paint: { 'raster-opacity': config.opacity || 0.85 }
+            });
+        }
+        return;
+    }
+
     try {
         const response = await fetch(config.file);
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
@@ -348,12 +454,29 @@ async function loadLayer(key, config) {
             } else if (config.type === 'line') {
                 map.addLayer({ id: config.id, type: 'line', source: config.sourceId, paint: config.paint, layout: { visibility: initVis } });
             } else if (config.type === 'natpark') {
-                map.addLayer({ id: `${config.id}-fill`, type: 'fill', source: config.sourceId, paint: { 'fill-color': '#a8c89a', 'fill-opacity': 0.18 }, layout: { visibility: initVis } });
-                map.addLayer({ id: config.id, type: 'line', source: config.sourceId, paint: { 'line-color': '#2d7a2d', 'line-width': 2.5 }, layout: { visibility: initVis } });
+                map.addLayer({ id: `${config.id}-fill`, type: 'fill', source: config.sourceId, paint: { 'fill-color': '#c8a96e', 'fill-opacity': 0.15 }, layout: { visibility: initVis } });
+                map.addLayer({ id: config.id, type: 'line', source: config.sourceId, paint: { 'line-color': '#8B5E3C', 'line-width': 2.5 }, layout: { visibility: initVis } });
             } else if (config.type === 'boundary') {
                 map.addLayer({ id: `${config.id}-outer`, type: 'line', source: config.sourceId, paint: config.outerPaint, layout: { visibility: initVis } });
                 map.addLayer({ id: `${config.id}-mid`,   type: 'line', source: config.sourceId, paint: config.midPaint,   layout: { visibility: initVis } });
                 map.addLayer({ id: `${config.id}-inner`, type: 'line', source: config.sourceId, paint: config.innerPaint, layout: { visibility: initVis } });
+            } else if (config.type === 'route') {
+                const isPesh = config.routeType === 'pesh';
+                map.addLayer({
+                    id: config.id, type: 'line', source: config.sourceId,
+                    layout: { visibility: initVis, 'line-join': 'round', 'line-cap': 'round' },
+                    paint: {
+                        'line-color': isPesh ? '#e67e22' : '#8e44ad',
+                        'line-width': 2.5,
+                        'line-opacity': 0.9,
+                        'line-dasharray': [6, 4]
+                    }
+                });
+                map.addLayer({
+                    id: `${config.id}-highlight`, type: 'line', source: config.sourceId,
+                    layout: { visibility: initVis, 'line-join': 'round', 'line-cap': 'round' },
+                    paint: { 'line-color': '#ffe066', 'line-width': 7, 'line-opacity': 0 }
+                });
             } else if (config.type === 'circle') {
                 map.addLayer({ id: config.id, type: 'circle', source: config.sourceId, paint: config.paint, layout: { visibility: initVis } });
                 if (config.hasLabels) {
@@ -387,7 +510,9 @@ function setLayerVisibility(key, visible) {
     const config = layerConfig[key];
     if (!config) return;
     const v = visible ? 'visible' : 'none';
-    if (config.type === 'fill') {
+    if (config.type === 'raster') {
+        if (map.getLayer(config.id)) map.setLayoutProperty(config.id, 'visibility', v);
+    } else if (config.type === 'fill') {
         if (map.getLayer(`${config.id}-fill`)) map.setLayoutProperty(`${config.id}-fill`, 'visibility', v);
         if (map.getLayer(`${config.id}-line`)) map.setLayoutProperty(`${config.id}-line`, 'visibility', v);
     } else if (config.type === 'line') {
@@ -399,6 +524,9 @@ function setLayerVisibility(key, visible) {
         ['outer','mid','inner'].forEach(s => {
             if (map.getLayer(`${config.id}-${s}`)) map.setLayoutProperty(`${config.id}-${s}`, 'visibility', v);
         });
+    } else if (config.type === 'route') {
+        if (map.getLayer(config.id)) map.setLayoutProperty(config.id, 'visibility', v);
+        if (map.getLayer(`${config.id}-highlight`)) map.setLayoutProperty(`${config.id}-highlight`, 'visibility', v);
     } else if (config.type === 'circle') {
         if (map.getLayer(config.id)) map.setLayoutProperty(config.id, 'visibility', v);
         if (config.hasLabels && map.getLayer(`${config.id}-labels`)) map.setLayoutProperty(`${config.id}-labels`, 'visibility', v);
@@ -500,33 +628,86 @@ map.on('load', () => {
     setupModals();
     setupMapBoxWaterToggle();
     map.once('idle', () => {
-        if (map.getLayer('basin-fill')) map.moveLayer('basin-fill', 'mapbox-water-fill');
-        if (map.getLayer('basin-line')) map.moveLayer('basin-line', 'mapbox-water-fill');
+        // Порядок слоёв снизу вверх:
+        // подложка → basin → natpark → глобальная гидрография → локальная гидрография → остальные слои
+
+        // 1. basin и natpark — выше подложки, но ниже глобальной гидрографии
+        if (map.getLayer('basin-fill'))    map.moveLayer('basin-fill',    'mapbox-water-fill');
+        if (map.getLayer('basin-line'))    map.moveLayer('basin-line',    'mapbox-water-fill');
+        if (map.getLayer('natpark-fill'))  map.moveLayer('natpark-fill',  'mapbox-water-fill');
+        if (map.getLayer('natpark'))       map.moveLayer('natpark',       'mapbox-water-fill');
+
+        // 2. Локальная гидрография — под глобальной (глобальная будет выше)
+        if (map.getLayer('gidro-line'))    map.moveLayer('gidro-line',    'mapbox-water-fill');
+
         setupRiverInteraction();
         setupStokPopup();
+        setupRouteInteraction();
+        setupPointsProb();
     });
 });
 
+// ====================== ТОЧКИ ОБСЛЕДОВАНИЯ ПРИТОКОВ ТРУБЕЖА ======================
+let probPopup = null;
+
+function setupPointsProb() {
+    const layerId = layerConfig.pointsProb1.id;
+    if (!map.getLayer(layerId)) return;
+
+    map.on('mouseenter', layerId, () => { map.getCanvas().style.cursor = 'pointer'; });
+    map.on('mouseleave', layerId, () => { map.getCanvas().style.cursor = ''; });
+
+    map.on('click', layerId, e => {
+        const props = e.features[0]?.properties;
+        if (!props) return;
+
+        const name        = props.name        || '—';
+        const description = props.description || '';
+        const foto        = (props.foto && props.foto !== 'null') ? props.foto : null;
+
+        if (probPopup) probPopup.remove();
+        probPopup = new mapboxgl.Popup({
+            closeButton: true, closeOnClick: false,
+            maxWidth: '280px', className: 'prob-popup'
+        })
+        .setLngLat(e.lngLat)
+        .setHTML(`
+            <div class="prob-popup-inner">
+                <div class="prob-popup-title">${name}</div>
+                ${foto ? `<img class="prob-popup-photo" src="data/expedition_photo/${foto}" alt="${name}" onerror="this.style.display='none'">` : ''}
+                ${description ? `<div class="prob-popup-text">${description}</div>` : ''}
+            </div>
+        `)
+        .addTo(map);
+    });
+}
+
 // ====================== ИНФОРМАЦИЯ О РЕКАХ ======================
+// Текстовые описания — ключ совпадает с полем SEM9, фото берётся из атрибута photo
 const riverInfo = {
-    'Трубеж': {
-        photo: 'data/water_photo/trubezh.jpeg',
-        text: 'Река Трубеж — правый приток озера Плещеево длиной около 37 км. Протекает через город Переславль-Залесский и исторически служила важным водным путём. В нижнем течении образует живописную пойму с богатой водной растительностью.'
-    }
+    'Трубеж':   'Река Трубеж — правый приток озера Плещеево длиной около 37 км. Протекает через город Переславль-Залесский и исторически служила важным водным путём. В нижнем течении образует живописную пойму с богатой водной растительностью.',
+    'Векса':    'Река Векса — левый приток озера Плещеево. Берёт начало в болотах и впадает в озеро с северо-западной стороны. Характеризуется спокойным течением и густой прибрежной растительностью.',
+    'Куротень': 'Река Куротень — один из притоков водосборного бассейна Плещеева озера. Протекает по лесистой местности, отличается чистой водой и живописными берегами.',
+    'Язёвка':   'Река Язёвка — небольшой приток в водосборном бассейне Плещеева озера. Впадает в озеро с южной стороны, проходя через сельскохозяйственные угодья.'
 };
+
 let riverPopup = null;
 
 function setupRiverInteraction() {
     const sourceId = layerConfig.gidroLine.sourceId;
     const baseLayerId = layerConfig.gidroLine.id;
     if (!map.getSource(sourceId)) return;
+
     if (!map.getLayer('gidro-line-highlight')) {
         map.addLayer({ id: 'gidro-line-highlight', type: 'line', source: sourceId,
             paint: { 'line-color': '#ffe066', 'line-width': 6, 'line-opacity': 0 } });
     }
+
     map.on('mousemove', baseLayerId, e => {
-        const name = e.features[0]?.properties?.SEM9;
-        if (name && riverInfo[name]) {
+        const props = e.features[0]?.properties;
+        const name = props?.SEM9;
+        const hasPhoto = props?.photo && props.photo !== 'null' && props.photo !== null;
+        if (name && (riverInfo[name] || hasPhoto)) {
             map.getCanvas().style.cursor = 'pointer';
             map.setPaintProperty('gidro-line-highlight', 'line-opacity', 1);
             map.setFilter('gidro-line-highlight', ['==', ['get', 'SEM9'], name]);
@@ -535,21 +716,31 @@ function setupRiverInteraction() {
             map.setPaintProperty('gidro-line-highlight', 'line-opacity', 0);
         }
     });
-    map.on('mouseleave', baseLayerId, () => { map.getCanvas().style.cursor = ''; map.setPaintProperty('gidro-line-highlight', 'line-opacity', 0); });
+
+    map.on('mouseleave', baseLayerId, () => {
+        map.getCanvas().style.cursor = '';
+        map.setPaintProperty('gidro-line-highlight', 'line-opacity', 0);
+    });
+
     map.on('click', baseLayerId, e => {
         const props = e.features[0]?.properties;
         const name = props?.SEM9;
-        if (!name || !riverInfo[name]) return;
-        const info = riverInfo[name];
+        const photo = (props?.photo && props.photo !== 'null' && props.photo !== null) ? props.photo : null;
+        const description = riverInfo[name] || null;
+        if (!name || (!description && !photo)) return;
+
         if (riverPopup) riverPopup.remove();
-        riverPopup = new mapboxgl.Popup({ closeButton: true, closeOnClick: false, maxWidth: '260px', className: 'river-popup' })
-            .setLngLat(e.lngLat)
-            .setHTML(`<div class="river-popup-inner">
-                <div class="river-popup-title">${name}</div>
-                <img class="river-popup-photo" src="${info.photo}" alt="${name}" onerror="this.style.display='none'">
-                <div class="river-popup-text">${info.text}</div>
-            </div>`)
-            .addTo(map);
+        riverPopup = new mapboxgl.Popup({
+            closeButton: true, closeOnClick: false,
+            maxWidth: '260px', className: 'river-popup'
+        })
+        .setLngLat(e.lngLat)
+        .setHTML(`<div class="river-popup-inner">
+            <div class="river-popup-title">${name}</div>
+            ${photo ? `<img class="river-popup-photo" src="data/water_photo/${photo}" alt="${name}" onerror="this.style.display='none'">` : ''}
+            ${description ? `<div class="river-popup-text">${description}</div>` : ''}
+        </div>`)
+        .addTo(map);
     });
 }
 
@@ -588,7 +779,7 @@ function setupStokPopup() {
                     <div class="stok-bar-wrap"><div class="stok-bar" style="height:${hM}px;background:#0d3b6e;"></div><div class="stok-bar-label">${max}</div><div class="stok-bar-name">Макс.</div></div>
                     <div class="stok-bar-wrap"><div class="stok-bar" style="height:${hS}px;background:#a8d0f0;border:1px solid #3a8fc7;"></div><div class="stok-bar-label">${sum}</div><div class="stok-bar-name">Сумм.</div></div>
                 </div>
-                <div class="stok-units">млн м³/год</div>
+                <div class="stok-units">тыс.м³/год</div>
             </div>`)
             .addTo(map);
         stokPopup.on('close', () => { stokPopup = null; clearBasinHighlight(); });
@@ -614,6 +805,59 @@ function clearBasinHighlight() {
         map.setLayoutProperty('gidro-bas-fill', 'visibility', 'none');
         map.setLayoutProperty('gidro-bas-line', 'visibility', 'none');
     }
+}
+
+// ====================== МАРШРУТЫ ЭКСПЕДИЦИИ ======================
+let routePopup = null;
+
+function setupRouteInteraction() {
+    const routeKeys = Object.keys(layerConfig).filter(k => layerConfig[k].type === 'route');
+
+    routeKeys.forEach(key => {
+        const config = layerConfig[key];
+        const layerId = config.id;
+        const highlightId = `${config.id}-highlight`;
+
+        map.on('mousemove', layerId, (e) => {
+            map.getCanvas().style.cursor = 'pointer';
+            if (map.getLayer(highlightId)) {
+                map.setPaintProperty(highlightId, 'line-opacity', 1);
+            }
+        });
+
+        map.on('mouseleave', layerId, () => {
+            map.getCanvas().style.cursor = '';
+            if (map.getLayer(highlightId)) {
+                map.setPaintProperty(highlightId, 'line-opacity', 0);
+            }
+        });
+
+        map.on('click', layerId, (e) => {
+            const props = e.features[0]?.properties;
+            if (!props) return;
+
+            const fid      = props.fid      || '—';
+            const name     = props.name     || '—';
+            const lengthKm = props.length_km|| '—';
+            const date     = props.date     || '—';
+            const typeLabel = config.routeType === 'pesh' ? 'пеший' : 'водный';
+
+            if (routePopup) routePopup.remove();
+            routePopup = new mapboxgl.Popup({
+                closeButton: true, closeOnClick: false,
+                maxWidth: '200px', className: 'route-popup'
+            })
+            .setLngLat(e.lngLat)
+            .setHTML(`
+                <div style="font-size:12px;line-height:1.6;padding:4px 2px;">
+                    <div style="font-weight:600;margin-bottom:4px;">${name}</div>
+                    <div style="color:#5a4a2a;">№${fid} · ${typeLabel}</div>
+                    <div>${lengthKm} км · ${date}</div>
+                </div>
+            `)
+            .addTo(map);
+        });
+    });
 }
 
 // ====================== ИЗМЕРЕНИЕ ======================
@@ -705,4 +949,28 @@ function toggleLegend() {
     const collapsed = body.style.display === 'none';
     body.style.display = collapsed ? 'block' : 'none';
     btn.innerHTML = collapsed ? '&#x25B2;' : '&#x25BC;';
+}
+// ====================== ПЕРЕКЛЮЧЕНИЕ ГРУПП МАРШРУТОВ ======================
+function toggleRouteMaster(enabled) {
+    const selector = document.getElementById('routes-type-selector');
+    if (selector) selector.style.display = enabled ? 'block' : 'none';
+
+    const peshCb  = document.getElementById('routes-pesh-toggle');
+    const waterCb = document.getElementById('routes-water-toggle');
+
+    if (enabled) {
+        toggleRouteGroup('pesh',  peshCb  ? peshCb.checked  : true);
+        toggleRouteGroup('water', waterCb ? waterCb.checked : true);
+    } else {
+        toggleRouteGroup('pesh',  false);
+        toggleRouteGroup('water', false);
+    }
+}
+
+function toggleRouteGroup(type, visible) {
+    Object.entries(layerConfig).forEach(([key, config]) => {
+        if (config.type === 'route' && config.routeType === type) {
+            setLayerVisibility(key, visible);
+        }
+    });
 }
